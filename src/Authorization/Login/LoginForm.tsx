@@ -27,11 +27,13 @@ function Login(): JSX.Element {
     if (!data) {
       return;
     }
+
     if (data) {
       if (setToken) {
-        setToken(data?.token);
         cookies.set("Token", data?.token);
-        // sessionStorage.setItem()
+        if (cookies.get("Token")) {
+          setToken(cookies.get("Token"));
+        }
       }
     }
   }, [cookies, data, setToken]);
@@ -44,7 +46,6 @@ function Login(): JSX.Element {
         username: values.username,
         password: values.password,
       },
-      // withCredentials: true,
     });
   }
 

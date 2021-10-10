@@ -1,16 +1,27 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import Routes from "./Routes/Routes";
-import { TokenContext } from "./Context/TokenContext";
+import { TokenContext, TokenInterface } from "./Context/TokenContext";
 import NavigationBar from "./Navbar/Navbar";
-import { UserContext } from "./Context/UserContext";
+import { UserContext, UserInterface } from "./Context/UserContext";
+import Cookies from "universal-cookie";
 
 function App() {
-  const [token, setToken] = useState<any>();
-  const [user, setUser] = useState<any>();
+  const [token, setToken] = useState<TokenInterface>();
+  const [user, setUser] = useState<UserInterface>();
   const tokenProvider = useMemo(() => ({ token, setToken }), [token, setToken]);
   const userProvider = useMemo(() => ({ user, setUser }), [user, setUser]);
+
+  const cookies = useMemo(() => {
+    return new Cookies();
+  }, []);
+
+  useEffect(() => {
+    if (cookies.get("Token")) {
+      setToken(cookies.get("Token"));
+    }
+  }, [cookies]);
 
   return (
     <TokenContext.Provider value={tokenProvider}>

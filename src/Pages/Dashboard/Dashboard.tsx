@@ -11,11 +11,15 @@ interface UserInterface {
 
 function Dashboard() {
   const { token } = useContext(TokenContext);
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const { data, sendRequest } = useAxios<UserInterface>({}, { skipIf: true });
 
   useEffect(() => {
+    if (token && user) {
+      return;
+    }
+
     if (token) {
       sendRequest({
         url: "/user",
@@ -23,12 +27,13 @@ function Dashboard() {
         headers: { Authorization: `${token}` },
       });
     }
-  }, [sendRequest, token]);
+  }, [sendRequest, token, user, data]);
 
   useEffect(() => {
     if (!data) {
       return;
     }
+
     if (setUser) {
       setUser(data);
     }
@@ -36,7 +41,6 @@ function Dashboard() {
 
   return (
     <div>
-      {/* <p>Dashboard Page</p> */}
       <div style={{ maxWidth: "700px", margin: "auto" }}>
         <img src={welcomeImg} alt="" />
       </div>

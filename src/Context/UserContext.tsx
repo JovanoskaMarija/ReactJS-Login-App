@@ -1,13 +1,13 @@
 import { createContext, Dispatch, SetStateAction } from "react";
-interface UserInterface{
-  username?: string,
-  firstName?: string
-  lastName?: string
+export interface UserInterface {
+  username?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 interface Props {
   user: UserInterface | undefined;
-  setUser: Dispatch<SetStateAction<UserInterface>>
+  setUser: Dispatch<SetStateAction<UserInterface | undefined>>;
 }
 
-export const UserContext = createContext<Partial<Props>>({})
+export const UserContext = createContext<Partial<Props>>({});

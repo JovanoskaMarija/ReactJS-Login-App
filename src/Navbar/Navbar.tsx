@@ -30,7 +30,7 @@ function NavigationBar() {
         <Button
           onClick={() => {
             if (setToken) {
-              setToken("");
+              setToken(undefined);
             }
             if (setUser) {
               setUser({});

@@ -10,6 +10,10 @@ const axiosInstance = axios.create({
   },
 });
 
+interface AdditonalRequestProps {
+  skipIf: boolean;
+}
+
 interface ReturnInterface<D, E> {
   data: D | undefined;
   error: AxiosError<E> | undefined;
@@ -19,7 +23,7 @@ interface ReturnInterface<D, E> {
 
 function useAxios<D = object, E = object>(
   config?: AxiosRequestConfig,
-  plusConfig?: any
+  plusConfig?: AdditonalRequestProps
 ): ReturnInterface<D, E> {
   const [data, setData] = useState<D>();
   const [error, setError] = useState<AxiosError<E>>();
@@ -59,27 +63,20 @@ function useAxios<D = object, E = object>(
           setLoading(false);
         });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(config)]
+    [config, plusConfig]
   );
 
-  useEffect(
-    () => {
-      if (plusConfig?.skipIf) {
-        return;
-      }
+  useEffect(() => {
+    if (plusConfig?.skipIf) {
+      return;
+    }
 
-      fetchData();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [plusConfig, fetchData]
-  );
+    fetchData();
+  }, [plusConfig, fetchData]);
 
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      // axiosCancelToken.current.cancel();
     };
   }, []);
 
