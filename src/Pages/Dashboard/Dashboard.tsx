@@ -13,10 +13,13 @@ function Dashboard() {
   const { token } = useContext(TokenContext);
   const { user, setUser } = useContext(UserContext);
 
-  const { data, sendRequest } = useAxios<UserInterface>({}, { skipIf: true });
+  const { data, loading, sendRequest } = useAxios<UserInterface>(
+    {},
+    { skipIf: true }
+  );
 
   useEffect(() => {
-    if (token && user) {
+    if ((token && user) || loading) {
       return;
     }
 
@@ -27,7 +30,7 @@ function Dashboard() {
         headers: { Authorization: `${token}` },
       });
     }
-  }, [sendRequest, token, user, data]);
+  }, [sendRequest, loading, token, user, data]);
 
   useEffect(() => {
     if (!data) {
