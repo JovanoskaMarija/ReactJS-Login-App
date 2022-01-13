@@ -1,17 +1,22 @@
 import "./Login.css";
 
 import { Field, Form, Formik, FormikProps } from "formik";
-import { useContext, useEffect, useMemo, useRef } from "react";
-import { Button, Form as BootstrapForm } from "react-bootstrap";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Button, Col, FormGroup, Input, Label } from "reactstrap";
 import Cookies from "universal-cookie";
 
 import useAxios from "../../api/useAxiosHook";
 import logo from "../../assets/logo.svg";
 import { FormValues, validationSchema, initialValues } from "./Login.function";
-import { TokenContext, TokenInterface } from "../../Context/TokenContext";
+import { TokenContext } from "../../components/Context/TokenContext";
+
+interface Token {
+  token: string;
+}
 
 function Login(): JSX.Element {
   const formRef = useRef<FormikProps<FormValues>>(null);
+  const [tok, setTok] = useState<Token>();
 
   const { setToken } = useContext(TokenContext);
 
@@ -19,24 +24,27 @@ function Login(): JSX.Element {
     return new Cookies();
   }, []);
 
-  const { data, error, sendRequest } = useAxios<TokenInterface | undefined>(
-    {},
-    { skipIf: true }
-  );
+  const { data, error, sendRequest } = useAxios();
   useEffect(() => {
     if (!data) {
       return;
     }
 
     if (data) {
+      setTok(data);
+    }
+  }, [data, setTok]);
+
+  useEffect(() => {
+    if (tok) {
       if (setToken) {
-        cookies.set("Token", data?.token);
+        cookies.set("Token", tok.token);
         if (cookies.get("Token")) {
           setToken(cookies.get("Token"));
         }
       }
     }
-  }, [cookies, data, setToken]);
+  }, [cookies, setToken, tok]);
 
   function handleSubmit(values: { username: string; password: string }) {
     sendRequest({
@@ -71,32 +79,38 @@ function Login(): JSX.Element {
             {({ errors, touched }) => (
               <Form>
                 <div className="d-flex flex-column">
-                  <BootstrapForm.Group>
-                    <BootstrapForm.Label className="login-label">
+                  <FormGroup>
+                    <Label className="login-label" for="username">
                       Username
-                    </BootstrapForm.Label>
-                    <BootstrapForm.Control
-                      as={Field}
-                      type="text"
-                      name="username"
-                    />
-                  </BootstrapForm.Group>
+                    </Label>
+                    <Col>
+                      <Input
+                        tag={Field}
+                        id="username"
+                        name="username"
+                        type="text"
+                      />
+                    </Col>
+                  </FormGroup>
                   {touched.username && errors.username ? (
                     <div className="invalid-msg">{errors.username}</div>
                   ) : null}
                 </div>
 
                 <div className="d-flex flex-column">
-                  <BootstrapForm.Group>
-                    <BootstrapForm.Label className="login-label">
+                  <FormGroup>
+                    <Label className="login-label" for="password">
                       Password
-                    </BootstrapForm.Label>
-                    <BootstrapForm.Control
-                      as={Field}
-                      type="password"
-                      name="password"
-                    />
-                  </BootstrapForm.Group>
+                    </Label>
+                    <Col>
+                      <Input
+                        tag={Field}
+                        id="password"
+                        name="password"
+                        type="password"
+                      />
+                    </Col>
+                  </FormGroup>
                   {touched.password && errors.password ? (
                     <div className="invalid-msg">{errors.password}</div>
                   ) : null}

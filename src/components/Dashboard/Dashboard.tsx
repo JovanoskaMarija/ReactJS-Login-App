@@ -1,22 +1,14 @@
 import { useContext, useEffect } from "react";
 import useAxios from "../../api/useAxiosHook";
-import { TokenContext } from "../../Context/TokenContext";
-import { UserContext } from "../../Context/UserContext";
+import { TokenContext } from "../../components/Context/TokenContext";
+import { UserContext } from "../../components/Context/UserContext";
 import welcomeImg from "../../assets/welcome-bro.svg";
-interface UserInterface {
-  username: string;
-  firstName: string;
-  lastName: string;
-}
 
 function Dashboard() {
   const { token } = useContext(TokenContext);
   const { user, setUser } = useContext(UserContext);
 
-  const { data, loading, sendRequest } = useAxios<UserInterface>(
-    {},
-    { skipIf: true }
-  );
+  const { data, loading, sendRequest } = useAxios();
 
   useEffect(() => {
     if ((token && user) || loading) {

@@ -1,6 +1,5 @@
-import axios from "axios";
-import Axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_URL,
@@ -10,77 +9,24 @@ const axiosInstance = axios.create({
   },
 });
 
-interface AdditonalRequestProps {
-  skipIf: boolean;
-}
+export const useAxios = () => {
+  const [data, setData] = useState(undefined);
+  const [error, setError] = useState<AxiosError>();
+  const [loading, setLoading] = useState(false);
 
-interface ReturnInterface<D, E> {
-  data: D | undefined;
-  error: AxiosError<E> | undefined;
-  loading: boolean;
-  sendRequest: (newConfig?: AxiosRequestConfig) => void;
-}
-
-function useAxios<D = object, E = object>(
-  config?: AxiosRequestConfig,
-  plusConfig?: AdditonalRequestProps
-): ReturnInterface<D, E> {
-  const [data, setData] = useState<D>();
-  const [error, setError] = useState<AxiosError<E>>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const isMountedRef = useRef<boolean>(true);
-
-  const fetchData = useCallback(
-    (newConfig?: AxiosRequestConfig) => {
-      const requestConfig: AxiosRequestConfig = {
-        ...{ plusConfig },
-        ...{ config },
-        ...newConfig,
-      };
-
+  const sendRequest = async (params: AxiosRequestConfig) => {
+    try {
       setLoading(true);
-
-      axiosInstance(requestConfig)
-        .then((response) => {
-          if (!isMountedRef.current) {
-            return;
-          }
-          setError(undefined);
-          setData(response.data);
-        })
-        .catch((error: AxiosError<E>) => {
-          if (Axios.isCancel(error) || !isMountedRef.current) {
-            return;
-          }
-          setData(undefined);
-          setError(error);
-        })
-        .finally(() => {
-          if (!isMountedRef.current) {
-            return;
-          }
-          setLoading(false);
-        });
-    },
-    [config, plusConfig]
-  );
-
-  useEffect(() => {
-    if (plusConfig?.skipIf) {
-      return;
+      const result = await axiosInstance.request(params);
+      setData(result.data);
+    } catch (error: any) {
+      setError(error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    fetchData();
-  }, [plusConfig, fetchData]);
-
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  return { data, error, loading, sendRequest: fetchData };
-}
+  return { data, error, loading, sendRequest };
+};
 
 export default useAxios;
