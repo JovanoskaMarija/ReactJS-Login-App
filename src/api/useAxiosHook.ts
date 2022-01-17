@@ -1,18 +1,25 @@
 import { useState } from "react";
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import { AxiosError, AxiosRequestConfig } from "axios";
+import Cookies from "universal-cookie";
 
-const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_URL,
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+import { axiosInstance } from "./axiosInstance";
 
 export const useAxios = () => {
   const [data, setData] = useState(undefined);
   const [error, setError] = useState<AxiosError>();
   const [loading, setLoading] = useState(false);
+
+  axiosInstance.interceptors.request.use((request) => {
+    const cookies = new Cookies();
+    const token = cookies.get("Token");
+
+    if (token) {
+      if (request.headers) {
+        request.headers.Authorization = token;
+      }
+    }
+    return request;
+  });
 
   const sendRequest = async (params: AxiosRequestConfig) => {
     try {

@@ -1,15 +1,11 @@
 import { useContext } from "react";
 import { Redirect, Route } from "react-router-dom";
-import { TokenContext } from "./Context/TokenContext";
+import { IsUserLoggedInContext } from "./Context/IsUserLoggedInContext";
 
 function AuthRoute({ ...routeProps }): JSX.Element {
-  const { token } = useContext(TokenContext);
+  const { isLoggedIn } = useContext(IsUserLoggedInContext);
 
-  return token || (typeof token === "object" && Object.keys(token)) ? (
-    <Route {...routeProps} />
-  ) : (
-    <Redirect to="/" />
-  );
+  return isLoggedIn ? <Route {...routeProps} /> : <Redirect to="/" />;
 }
 
 export default AuthRoute;

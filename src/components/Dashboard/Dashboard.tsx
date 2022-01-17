@@ -1,28 +1,27 @@
 import { useContext, useEffect } from "react";
 import useAxios from "../../api/useAxiosHook";
-import { TokenContext } from "../../components/Context/TokenContext";
 import { UserContext } from "../../components/Context/UserContext";
 import welcomeImg from "../../assets/welcome-bro.svg";
+import { IsUserLoggedInContext } from "../Context/IsUserLoggedInContext";
 
 function Dashboard() {
-  const { token } = useContext(TokenContext);
+  const { isLoggedIn } = useContext(IsUserLoggedInContext);
   const { user, setUser } = useContext(UserContext);
 
   const { data, loading, sendRequest } = useAxios();
 
   useEffect(() => {
-    if ((token && user) || loading) {
+    if ((isLoggedIn && user) || loading) {
       return;
     }
 
-    if (token) {
+    if (isLoggedIn) {
       sendRequest({
         url: "/user",
         method: "get",
-        headers: { Authorization: `${token}` },
       });
     }
-  }, [sendRequest, loading, token, user, data]);
+  }, [sendRequest, loading, isLoggedIn, user, data]);
 
   useEffect(() => {
     if (!data) {
@@ -37,7 +36,7 @@ function Dashboard() {
   return (
     <div>
       <div style={{ maxWidth: "700px", margin: "auto" }}>
-        <img src={welcomeImg} alt="" />
+        <img src={welcomeImg} alt="" id="welcome_img" />
       </div>
     </div>
   );

@@ -1,15 +1,15 @@
 import { useContext, useMemo } from "react";
 import { Nav, NavItem, Button } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import { TokenContext } from "../Context/TokenContext";
 import { UserContext } from "../Context/UserContext";
 import logo from "../../assets/logo.svg";
 
 import Cookies from "universal-cookie";
+import { IsUserLoggedInContext } from "../Context/IsUserLoggedInContext";
 
 function NavigationBar() {
   const history = useHistory();
-  const { setToken } = useContext(TokenContext);
+  const { setIsLoggedIn } = useContext(IsUserLoggedInContext);
   const { user, setUser } = useContext(UserContext);
 
   const cookies = useMemo(() => {
@@ -17,15 +17,15 @@ function NavigationBar() {
   }, []);
 
   function handleLogout() {
-    if (setToken) {
-      setToken(undefined);
+    if (setIsLoggedIn) {
+      setIsLoggedIn(false);
     }
     if (setUser) {
       setUser({});
     }
 
     cookies.remove("Token");
-    history.go(0);
+    history?.go(0);
   }
 
   return (

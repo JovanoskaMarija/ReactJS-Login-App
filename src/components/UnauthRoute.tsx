@@ -1,11 +1,11 @@
 import { useContext } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
-import { TokenContext } from "./Context/TokenContext";
+import { IsUserLoggedInContext } from "./Context/IsUserLoggedInContext";
 
 function UnauthRoute({ ...routeProps }: RouteProps): JSX.Element {
-  const { token } = useContext(TokenContext);
+  const { isLoggedIn } = useContext(IsUserLoggedInContext);
 
-  return token ? <Redirect to="/" /> : <Route {...routeProps} />;
+  return isLoggedIn ? <Redirect to="/" /> : <Route {...routeProps} />;
 }
 
 export default UnauthRoute;

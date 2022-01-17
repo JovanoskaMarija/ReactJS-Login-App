@@ -5,56 +5,58 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Col, FormGroup, Input, Label } from "reactstrap";
 import Cookies from "universal-cookie";
 
-import useAxios from "../../api/useAxiosHook";
+import { axiosInstance } from "../../api/axiosInstance";
 import logo from "../../assets/logo.svg";
 import { FormValues, validationSchema, initialValues } from "./Login.function";
-import { TokenContext } from "../../components/Context/TokenContext";
+import { AxiosError } from "axios";
+import { IsUserLoggedInContext } from "../../components/Context/IsUserLoggedInContext";
 
 interface Token {
   token: string;
 }
+interface Data {
+  data: Token;
+}
+interface Payload {
+  username: string;
+  password: string;
+}
 
 function Login(): JSX.Element {
   const formRef = useRef<FormikProps<FormValues>>(null);
-  const [tok, setTok] = useState<Token>();
+  const [tok, setTok] = useState<string>();
+  const [error, setError] = useState<AxiosError>();
 
-  const { setToken } = useContext(TokenContext);
+  const { setIsLoggedIn } = useContext(IsUserLoggedInContext);
 
   const cookies = useMemo(() => {
     return new Cookies();
   }, []);
 
-  const { data, error, sendRequest } = useAxios();
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    if (data) {
-      setTok(data);
-    }
-  }, [data, setTok]);
-
   useEffect(() => {
     if (tok) {
-      if (setToken) {
-        cookies.set("Token", tok.token);
-        if (cookies.get("Token")) {
-          setToken(cookies.get("Token"));
-        }
+      cookies.set("Token", tok);
+
+      if (setIsLoggedIn) {
+        setIsLoggedIn(true);
       }
     }
-  }, [cookies, setToken, tok]);
+  }, [cookies, setIsLoggedIn, tok]);
 
   function handleSubmit(values: { username: string; password: string }) {
-    sendRequest({
-      url: "/login",
-      method: "post",
-      data: {
-        username: values.username,
-        password: values.password,
-      },
-    });
+    const payload = {
+      username: values.username,
+      password: values.password,
+    };
+
+    axiosInstance
+      .post<Payload, Data>("/login", payload)
+      .then((resp) => {
+        setTok(resp?.data.token);
+      })
+      .catch((err: AxiosError) => {
+        setError(err);
+      });
   }
 
   const schema = useMemo(() => validationSchema(), []);
