@@ -2,42 +2,39 @@ import { useMemo, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import Login from "../containers/Login/LoginForm";
 import { UserContext, UserInterface } from "../components/Context/UserContext";
-import NavigationBar from "../components/Navbar/Navbar";
-import Dashboard from "../components/Dashboard/Dashboard";
-import AuthRoute from "../components/AuthRoute";
-import UnauthRoute from "../components/UnauthRoute";
-import { IsUserLoggedInContext } from "../components/Context/IsUserLoggedInContext";
+import NavigationBar from "./Dashboard/Navbar/Navbar";
+import Dashboard from "./Dashboard/Dashboard";
+import AuthRoute from "./AuthRoute";
+import Cookies from "universal-cookie";
 
 function Routes() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [user, setUser] = useState<UserInterface>();
-
-  const loggedInProvider = useMemo(() => ({ isLoggedIn, setIsLoggedIn }), [
-    isLoggedIn,
-    setIsLoggedIn,
-  ]);
-
+  const [user, setUser] = useState<UserInterface>({
+    username: "",
+    firstName: "",
+    lastName: "",
+  });
   const userProvider = useMemo(() => ({ user, setUser }), [user, setUser]);
 
+  const cookies = useMemo(() => {
+    return new Cookies();
+  }, []);
+
+  const token = cookies.get("Token");
+
   return (
-    <IsUserLoggedInContext.Provider value={loggedInProvider}>
-      <UserContext.Provider value={userProvider}>
-        {isLoggedIn && <NavigationBar />}
+    <UserContext.Provider value={userProvider}>
+      {token && <NavigationBar />}
 
-        <Switch>
-          <UnauthRoute path="/login" component={Login} />
-          <AuthRoute path="/dashboard" component={Dashboard} />
-
-          <Route path="/" exact>
-            {isLoggedIn ? (
-              <Redirect to="/dashboard" />
-            ) : (
-              <Redirect to="/login" />
-            )}
-          </Route>
-        </Switch>
-      </UserContext.Provider>
-    </IsUserLoggedInContext.Provider>
+      <Switch>
+        <Route path="/login">
+          <Login />
+        </Route>
+        <AuthRoute path="/dashboard">
+          <Dashboard />
+        </AuthRoute>
+        <Redirect to="/login" exact />
+      </Switch>
+    </UserContext.Provider>
   );
 }
 

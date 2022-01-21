@@ -1,15 +1,14 @@
 import { useContext, useMemo } from "react";
 import { Nav, NavItem, Button } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import { UserContext } from "../Context/UserContext";
-import logo from "../../assets/logo.svg";
+import { UserContext } from "../../../components/Context/UserContext";
+import logo from "../../../assets/logo.svg";
 
 import Cookies from "universal-cookie";
-import { IsUserLoggedInContext } from "../Context/IsUserLoggedInContext";
 
 function NavigationBar() {
   const history = useHistory();
-  const { setIsLoggedIn } = useContext(IsUserLoggedInContext);
+
   const { user, setUser } = useContext(UserContext);
 
   const cookies = useMemo(() => {
@@ -17,15 +16,14 @@ function NavigationBar() {
   }, []);
 
   function handleLogout() {
-    if (setIsLoggedIn) {
-      setIsLoggedIn(false);
-    }
-    if (setUser) {
-      setUser({});
-    }
+    setUser({
+      username: "",
+      firstName: "",
+      lastName: "",
+    });
 
     cookies.remove("Token");
-    history?.go(0);
+    history.push("/login");
   }
 
   return (
@@ -40,7 +38,7 @@ function NavigationBar() {
       </NavItem>
 
       <NavItem>
-        <Button onClick={() => handleLogout()} className="btn btn-light">
+        <Button onClick={handleLogout} className="btn btn-light">
           Logout
         </Button>
       </NavItem>

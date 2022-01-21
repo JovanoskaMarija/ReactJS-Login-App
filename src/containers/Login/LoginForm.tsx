@@ -1,15 +1,14 @@
 import "./Login.css";
 
 import { Field, Form, Formik, FormikProps } from "formik";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button, Col, FormGroup, Input, Label } from "reactstrap";
 import Cookies from "universal-cookie";
 
 import { axiosInstance } from "../../api/axiosInstance";
 import logo from "../../assets/logo.svg";
 import { FormValues, validationSchema, initialValues } from "./Login.function";
-import { AxiosError } from "axios";
-import { IsUserLoggedInContext } from "../../components/Context/IsUserLoggedInContext";
+import { useHistory } from "react-router-dom";
 
 interface Token {
   token: string;
@@ -21,27 +20,19 @@ interface Payload {
   username: string;
   password: string;
 }
+interface Error {
+  status: string | null;
+  description: string;
+}
 
-function Login(): JSX.Element {
+function Login() {
+  const history = useHistory();
   const formRef = useRef<FormikProps<FormValues>>(null);
-  const [tok, setTok] = useState<string>();
-  const [error, setError] = useState<AxiosError>();
-
-  const { setIsLoggedIn } = useContext(IsUserLoggedInContext);
+  const [error, setError] = useState<Error>({ status: null, description: "" });
 
   const cookies = useMemo(() => {
     return new Cookies();
   }, []);
-
-  useEffect(() => {
-    if (tok) {
-      cookies.set("Token", tok);
-
-      if (setIsLoggedIn) {
-        setIsLoggedIn(true);
-      }
-    }
-  }, [cookies, setIsLoggedIn, tok]);
 
   function handleSubmit(values: { username: string; password: string }) {
     const payload = {
@@ -51,11 +42,15 @@ function Login(): JSX.Element {
 
     axiosInstance
       .post<Payload, Data>("/login", payload)
-      .then((resp) => {
-        setTok(resp?.data.token);
+      .then(({ data }) => {
+        cookies.set("Token", data.token);
+        history.push("/dashboard");
       })
-      .catch((err: AxiosError) => {
-        setError(err);
+      .catch(({ response }) => {
+        setError({
+          status: response.status,
+          description: response.data,
+        });
       });
   }
 
@@ -67,9 +62,7 @@ function Login(): JSX.Element {
         <h1 className="page-title">Login</h1>
         <img src={logo} alt="" width="100px" />
 
-        {error?.response?.status === 401 && (
-          <div className="login-error">Incorrect username or password</div>
-        )}
+        {error.status && <div className="login-error">{error.description}</div>}
 
         <div>
           <Formik
@@ -110,6 +103,7 @@ function Login(): JSX.Element {
                         id="password"
                         name="password"
                         type="password"
+                        role="password"
                       />
                     </Col>
                   </FormGroup>
