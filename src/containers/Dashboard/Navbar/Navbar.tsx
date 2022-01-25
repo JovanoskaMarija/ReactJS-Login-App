@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { Nav, NavItem, Button } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import { UserContext } from "../../../components/Context/UserContext";
+import { UserContext } from "../../../Context/UserContext";
 import logo from "../../../assets/logo.svg";
 
 import Cookies from "universal-cookie";

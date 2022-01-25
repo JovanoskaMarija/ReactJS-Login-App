@@ -3,55 +3,30 @@ import "./Login.css";
 import { Field, Form, Formik, FormikProps } from "formik";
 import { useMemo, useRef, useState } from "react";
 import { Button, Col, FormGroup, Input, Label } from "reactstrap";
-import Cookies from "universal-cookie";
-
-import { axiosInstance } from "../../api/axiosInstance";
 import logo from "../../assets/logo.svg";
-import { FormValues, validationSchema, initialValues } from "./Login.function";
-import { useHistory } from "react-router-dom";
-
-interface Token {
-  token: string;
-}
-interface Data {
-  data: Token;
-}
-interface Payload {
-  username: string;
-  password: string;
-}
-interface Error {
-  status: string | null;
-  description: string;
-}
+import {
+  FormValues,
+  validationSchema,
+  initialValues,
+  Error,
+} from "./Login.function";
+import useLoginHook from "../../components/useLoginHook";
 
 function Login() {
-  const history = useHistory();
   const formRef = useRef<FormikProps<FormValues>>(null);
   const [error, setError] = useState<Error>({ status: null, description: "" });
+  const [submitted, setSubmitted] = useState(false);
 
-  const cookies = useMemo(() => {
-    return new Cookies();
-  }, []);
+  useLoginHook(
+    formRef.current?.values.username,
+    formRef.current?.values.password,
+    submitted,
+    setError,
+    setSubmitted
+  );
 
-  function handleSubmit(values: { username: string; password: string }) {
-    const payload = {
-      username: values.username,
-      password: values.password,
-    };
-
-    axiosInstance
-      .post<Payload, Data>("/login", payload)
-      .then(({ data }) => {
-        cookies.set("Token", data.token);
-        history.push("/dashboard");
-      })
-      .catch(({ response }) => {
-        setError({
-          status: response.status,
-          description: response.data,
-        });
-      });
+  function handleSubmit() {
+    setSubmitted(true);
   }
 
   const schema = useMemo(() => validationSchema(), []);

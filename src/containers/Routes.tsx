@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import Login from "../containers/Login/LoginForm";
-import { UserContext, UserInterface } from "../components/Context/UserContext";
+import { UserContext, UserInterface } from "../Context/UserContext";
 import NavigationBar from "./Dashboard/Navbar/Navbar";
 import Dashboard from "./Dashboard/Dashboard";
 import AuthRoute from "./AuthRoute";
