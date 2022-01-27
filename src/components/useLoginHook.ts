@@ -2,7 +2,15 @@ import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import Cookies from "universal-cookie";
 import axiosInstance from "../api/axiosInstance";
-import { Data, Payload, Error } from "../containers/Login/Login.function";
+import { Payload, Error } from "../containers/Login/Login.function";
+
+interface Token {
+  token: string;
+}
+
+interface Data {
+  data: Token;
+}
 
 export const useLoginHandler = (
   username: string | undefined,
@@ -12,6 +20,7 @@ export const useLoginHandler = (
   setSubmitted: Dispatch<SetStateAction<boolean>>
 ) => {
   const history = useHistory();
+
   const cookies = useMemo(() => {
     return new Cookies();
   }, []);

@@ -1,11 +1,5 @@
 import * as Yup from "yup";
 
-export interface Token {
-  token: string;
-}
-export interface Data {
-  data: Token;
-}
 export interface Payload {
   username: string;
   password: string;

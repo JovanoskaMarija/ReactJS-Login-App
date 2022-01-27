@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { Nav, NavItem, Button } from "reactstrap";
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../../../Context/UserContext";
@@ -11,9 +11,7 @@ function NavigationBar() {
 
   const { user, setUser } = useContext(UserContext);
 
-  const cookies = useMemo(() => {
-    return new Cookies();
-  }, []);
+  const cookies = new Cookies();
 
   function handleLogout() {
     setUser({
@@ -23,7 +21,7 @@ function NavigationBar() {
     });
 
     cookies.remove("Token");
-    history.push("/login");
+    history?.push("/login");
   }
 
   return (

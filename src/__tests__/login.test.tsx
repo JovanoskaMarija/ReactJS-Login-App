@@ -25,7 +25,7 @@ describe("login", () => {
     await waitFor(() => {
       fireEvent.change(password, {
         target: {
-          value: "password        ",
+          value: "password",
         },
       });
     });
