@@ -1,15 +1,13 @@
-import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import Cookies from "universal-cookie";
 import axiosInstance from "../api/axiosInstance";
 import { Payload, Error } from "../containers/Login/Login.function";
 
-interface Token {
-  token: string;
-}
-
 interface Data {
-  data: Token;
+  data: {
+    token: string;
+  };
 }
 
 export const useLoginHandler = (
@@ -20,10 +18,6 @@ export const useLoginHandler = (
   setSubmitted: Dispatch<SetStateAction<boolean>>
 ) => {
   const history = useHistory();
-
-  const cookies = useMemo(() => {
-    return new Cookies();
-  }, []);
 
   useEffect(() => {
     if (!submitted) {
@@ -38,8 +32,8 @@ export const useLoginHandler = (
 
       axiosInstance
         .post<Payload, Data>("/login", payload)
-        .then(({ data }) => {
-          cookies.set("Token", data.token);
+        .then(({ data: { token } }) => {
+          new Cookies().set("Token", token);
           history.push("/dashboard");
         })
         .catch(({ response }) => {
@@ -51,7 +45,7 @@ export const useLoginHandler = (
 
       setSubmitted(false);
     }
-  }, [username, password, submitted, cookies, history, setError, setSubmitted]);
+  }, [username, password, submitted, history, setError, setSubmitted]);
 };
 
 export default useLoginHandler;
